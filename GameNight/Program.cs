@@ -7,6 +7,7 @@
  *              season so far, records tonight's points, saves the new totals,
  *              and adds tonight's result to a history that grows every week.
  */
+
 const string PLAYERS_FILE = "players.txt";
 const string POINTS_FILE = "points.txt";
 const string HISTORY_FILE = "history.txt";
@@ -20,6 +21,8 @@ string[] points = File.ReadAllLines(POINTS_FILE);
 string[] players = File.ReadAllLines(PLAYERS_FILE);
 
 int leader = LeaderIndex(points);
+int bestTonight = -1;
+string winnerTonight = "";
 
 System.Console.WriteLine("PLAYER".PadRight(11) + "POINTS");
 //for loop to run through all of the names and print them out
@@ -30,7 +33,33 @@ for(int i = 0; i < points.Length; i++)
 System.Console.WriteLine($"Leader: {players[leader]} with {points[leader]}");
 System.Console.WriteLine("Season total: " + TotalPoints(points));
 
+// for loop because I need the index to update the correct player's season total
+for(int i = 0; i < players.Length; i++)
+{
+    int tonight = -1;
 
+// While: keep asking until the score is between 0 and 20
+    while(tonight < 0 || tonight > MAX_POINTS)
+    {
+        System.Console.Write($"Points tonight for {players[i]}: ");
+        tonight = Convert.ToInt32(Console.ReadLine());
+        if (tonight < 0 || tonight > MAX_POINTS)
+        {
+            System.Console.WriteLine("Points must be from 0 to 20.");
+        }
+    }
+    int season = Convert.ToInt32(points[i]) + tonight;
+    points[i] = season.ToString();
+    if(tonight > bestTonight)
+    {
+        bestTonight = tonight;
+        winnerTonight = players[i];
+    }
+}
+
+System.Console.WriteLine($"Tonight's winner: {winnerTonight} with {bestTonight}");
+File.WriteAllLines(POINTS_FILE, points);
+System.Console.WriteLine("Saved points.txt.");
 
 static int LeaderIndex(string[] points)
 {
