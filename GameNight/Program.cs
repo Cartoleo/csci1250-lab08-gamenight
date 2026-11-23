@@ -17,6 +17,33 @@ const int MAX_POINTS = 20;
 string projectFolder = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", ".."));
 Directory.SetCurrentDirectory(projectFolder);
 
+// Part 3: Show past nights and add tonight to the history
+
+System.Console.WriteLine("=== GAME NIGHT LEADERBOARD ===");
+
+string[] history = File.ReadAllLines(HISTORY_FILE);
+int tonightNumber = history.Length + 1;
+
+if (history.Length == 0)
+{
+    System.Console.WriteLine("No nights played yet.");
+}
+else
+{
+    System.Console.WriteLine($"Nights played: {history.Length}");
+
+    // foreach: I only need each past night’s text, not its index
+    foreach (string night in history)
+    {
+        System.Console.WriteLine("  " + night);
+    }
+}
+
+System.Console.WriteLine($"Tonight is Night {tonightNumber}.");
+System.Console.WriteLine();
+
+// Part 1: Show the current standings
+
 string[] points = File.ReadAllLines(POINTS_FILE);
 string[] players = File.ReadAllLines(PLAYERS_FILE);
 
@@ -37,6 +64,8 @@ System.Console.WriteLine("Season total: " + TotalPoints(points));
 for(int i = 0; i < players.Length; i++)
 {
     int tonight = -1;
+
+// Part 2: Record tonight's points and save the new totals
 
 // While: keep asking until the score is between 0 and 20
     while(tonight < 0 || tonight > MAX_POINTS)
@@ -61,6 +90,11 @@ System.Console.WriteLine($"Tonight's winner: {winnerTonight} with {bestTonight}"
 File.WriteAllLines(POINTS_FILE, points);
 System.Console.WriteLine("Saved points.txt.");
 
+string[] entry = { HistoryEntry(tonightNumber, winnerTonight, bestTonight) };
+File.AppendAllLines(HISTORY_FILE, entry);
+System.Console.WriteLine($"Added to history.txt: {entry[0]}");
+
+// Returns the index of the player with the most points
 static int LeaderIndex(string[] points)
 {
     int leaderPoints = 0;
@@ -82,6 +116,7 @@ static int LeaderIndex(string[] points)
     return leaderIndex;
 }
 
+// Returns the total points of all of the players
 static int TotalPoints(string[] points)
 {
     int total = 0;
@@ -93,4 +128,8 @@ static int TotalPoints(string[] points)
     return total;
 }
 
-// static string HistoryEntry(int night, string winner, int points);
+// Returns who won the night
+static string HistoryEntry(int night, string winner, int points)
+{
+    return $"Night {night}: {winner} won with {points} points";
+}
